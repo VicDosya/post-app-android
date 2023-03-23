@@ -1,6 +1,7 @@
 # post-app-android
 Post app using android studio.
-This app uses API requests(GET, POST, PUT, DELETE) to Express server with mongodb database.
+This app uses API requests(GET, POST, PUT, DELETE) to Express server with mongodb database(from my previous project using react-native).
+Search bar is included to filter through the posts.
 
 # Screenshots:
 ![app](https://user-images.githubusercontent.com/96661032/227240607-5b13373e-b384-441b-acf0-c1165da4177b.png)
