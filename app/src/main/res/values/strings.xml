@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Add a post</string>
+    <string name="add_a_post_description">Add a post</string>
+    <string name="title_input_title">Title:</string>
+    <string name="enter_post_title">Enter post title</string>
+    <string name="description_input_title">Description:</string>
+    <string name="enter_post_description">Enter post description</string>
+    <string name="author_input_title">Author:</string>
+    <string name="enter_post_author">Enter your name</string>
+    <string name="submit_post">Submit Post</string>
+    <string name="input_empty_warning">All input fields must not be empty.</string>
+    <string name="edit_post">Edit Post</string>
+    <string name="delete_post">Delete Post</string>
+</resources>
