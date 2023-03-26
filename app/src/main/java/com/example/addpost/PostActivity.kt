@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AnimationSet
 import android.widget.Button
 import android.widget.TextView
 import com.example.addpost.data.RetrofitInstance
@@ -32,11 +31,13 @@ class PostActivity : AppCompatActivity() {
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
         //Extract data extras passed from the main_activity
-        val postId = intent.getStringExtra("postId")
-        val title = intent.getStringExtra("title")
-        val description = intent.getStringExtra("description")
-        val author = intent.getStringExtra("author")
-        val date = intent.getStringExtra("date")
+        //I need to use Parcelable here! but it is too much code for now.
+        val post = intent.getSerializableExtra("post") as Post
+        val postId = post.id
+        val title = post.title
+        val description = post.description
+        val author = post.author
+        val date = post.createdAt
 
         // Set TextViews with post details
         findViewById<TextView>(R.id.tvTitle).text = title
@@ -45,29 +46,79 @@ class PostActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvDate).text = date
 
         //Grab title extra and set it as a toolbar title
-        supportActionBar?.title = "$title"
+        supportActionBar?.title = title
 
         //Edit Button functionality with Edit intention boolean
         val editButton = findViewById<Button>(R.id.editButton)
         editButton.setOnClickListener {
             val intent = Intent(this, PostFormActivity::class.java)
-            intent.putExtra("postId", postId)
-            intent.putExtra("title", title)
-            intent.putExtra("description", description)
-            intent.putExtra("author", author)
+            intent.putExtra("post", post)
             intent.putExtra("editMode", true)
             startActivity(intent)
         }
 
         //Delete button functionality to delete a specific post.
         val deleteButton = findViewById<Button>(R.id.deleteButton)
+        deletePost(deleteButton, postId)
 
-        deleteButton.setOnClickListener {
+
+        //PIZZA BUTTON ANIMATION CODE
+        //Get the pizza button view
+        val button = findViewById<Button>(R.id.pizza_button)
+        animatePizza(button)
+    }
+
+    //Function to run the BACK button in the toolbar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun animatePizza(button: Button) {
+        button.setOnClickListener {
+            //Create rotation animation
+            val rotation = ObjectAnimator.ofFloat(button, "rotation", 0f, 360f)
+            rotation.duration = 500 // rotation animation duration
+            rotation.interpolator = AccelerateDecelerateInterpolator()
+
+            // Create the scale animation
+            val scaleUpX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.5f)
+            val scaleUpY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.5f)
+            val scaleDownX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.5f, 1f)
+            val scaleDownY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.5f, 1f)
+            val scale = ObjectAnimator.ofPropertyValuesHolder(
+                button, scaleUpX, scaleUpY, scaleDownX, scaleDownY
+            )
+            scale.duration = 500 // adjust the animation duration as needed
+            scale.startDelay = 100 // adjust the delay time as needed
+
+            //Create the fade-in animation
+            val fadeIn = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.5f)
+            fadeIn.duration = 200 // fade in animation duration
+
+            //Create the fade-out animation
+            val fadeOut = ObjectAnimator.ofFloat(button, "alpha", 0.5f, 1f)
+            fadeOut.startDelay = 300 // delay time
+            fadeOut.duration = 200 // fadeout animation duration
+
+            //Combine all the animations into an AnimatorSet
+            val animatorSet = AnimatorSet()
+            animatorSet.play(rotation).with(scale).with(fadeIn).before(fadeOut)
+            animatorSet.start()
+        }
+    }
+
+    private fun deletePost(button: Button, postId: String) {
+        button.setOnClickListener {
             if (postId != null) {
                 api.deletePost(postId).enqueue(object : Callback<CreatePostResponse> {
                     override fun onResponse(
-                        call: Call<CreatePostResponse>,
-                        response: Response<CreatePostResponse>
+                        call: Call<CreatePostResponse>, response: Response<CreatePostResponse>
                     ) {
                         val statusCode = response.code()
                         if (statusCode == 200) {
@@ -89,52 +140,5 @@ class PostActivity : AppCompatActivity() {
                 Log.d("TAG", "Post id is not found(?)")
             }
         }
-
-        //PIZZA BUTTON ANIMATION CODE
-        //Get the pizza button view
-        val button = findViewById<Button>(R.id.pizza_button)
-
-        //Pizza button click listener
-        button.setOnClickListener {
-            //Create rotation animation
-            val rotation = ObjectAnimator.ofFloat(button, "rotation", 0f, 360f)
-            rotation.duration = 500 // rotation animation duration
-            rotation.interpolator = AccelerateDecelerateInterpolator()
-
-            // Create the scale animation
-            val scaleUpX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.5f)
-            val scaleUpY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.5f)
-            val scaleDownX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.5f, 1f)
-            val scaleDownY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.5f, 1f)
-            val scale = ObjectAnimator.ofPropertyValuesHolder(button, scaleUpX, scaleUpY, scaleDownX, scaleDownY)
-            scale.duration = 500 // adjust the animation duration as needed
-            scale.startDelay = 100 // adjust the delay time as needed
-
-            //Create the fade-in animation
-            val fadeIn = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.5f)
-            fadeIn.duration = 200 // fade in animation duration
-
-            //Create the fade-out animation
-            val fadeOut = ObjectAnimator.ofFloat(button, "alpha", 0.5f, 1f)
-            fadeOut.startDelay = 300 // delay time
-            fadeOut.duration = 200 // fadeout animation duration
-
-            //Combine all the animations into an AnimatorSet
-            val animatorSet = AnimatorSet()
-            animatorSet.play(rotation).with(scale).with(fadeIn).before(fadeOut)
-            animatorSet.start()
-        }
-
-    }
-
-    //Function to run the BACK button in the toolbar
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 }

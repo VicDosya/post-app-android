@@ -13,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 object RetrofitInstance {
     //Initialize Retrofit with baseURL of the server
@@ -30,9 +31,9 @@ object RetrofitInstance {
 
     //interface definition for fetching data
     interface ApiService {
-        //Get ALL the posts from the server
+        //Get limit amount of posts from the server
         @GET("api/posts")
-        fun getPosts(): Call<List<Post>>
+        fun getPosts(@Query("limit") limit: Int, @Query("offset") offset: Int): Call<List<Post>>
 
         //Post a single post to the server
         @POST("api/posts")

@@ -1,6 +1,7 @@
 package com.example.addpost
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 //Post data class
 data class Post(
@@ -9,7 +10,7 @@ data class Post(
     val description: String,
     val author: String,
     val createdAt: String,
-)
+) : Serializable
 
 //Post response from the server (e.g: "message: "success!")
 data class CreatePostResponse(val message: String)
