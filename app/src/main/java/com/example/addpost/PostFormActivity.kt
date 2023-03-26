@@ -50,10 +50,11 @@ class PostFormActivity : AppCompatActivity() {
             supportActionBar?.title = "Edit Post 📑"
 
             //Fill the input fields with post data extras (passed from the post_activity)
-            val postId = intent.getStringExtra("postId")
-            val title = intent.getStringExtra("title")
-            val description = intent.getStringExtra("description")
-            val author = intent.getStringExtra("author")
+            val post = intent.getSerializableExtra("post") as Post
+            val postId = post.id
+            val title = post.title
+            val description = post.description
+            val author = post.author
             inputTitle.setText(title)
             inputDescription.setText(description)
             inputAuthor.setText(author)
@@ -69,8 +70,7 @@ class PostFormActivity : AppCompatActivity() {
 
                     api.updatePost(postId, postData).enqueue(object : Callback<CreatePostResponse> {
                         override fun onResponse(
-                            call: Call<CreatePostResponse>,
-                            response: Response<CreatePostResponse>
+                            call: Call<CreatePostResponse>, response: Response<CreatePostResponse>
                         ) {
                             val statusCode = response.code()
                             if (statusCode == 200) {
@@ -117,8 +117,7 @@ class PostFormActivity : AppCompatActivity() {
                     //Call the createPost API and send the postData input values
                     api.createPost(postData).enqueue(object : Callback<CreatePostResponse> {
                         override fun onResponse(
-                            call: Call<CreatePostResponse>,
-                            response: Response<CreatePostResponse>
+                            call: Call<CreatePostResponse>, response: Response<CreatePostResponse>
                         ) {
                             val statusCode = response.code()
                             if (statusCode == 201) {
